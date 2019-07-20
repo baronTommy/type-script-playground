@@ -1,0 +1,4 @@
+{
+  // 別ファイルのtsconfigを継承
+  "extends": "./tsconfig.base.json"
+}
