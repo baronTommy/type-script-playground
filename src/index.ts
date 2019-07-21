@@ -19,10 +19,12 @@ function sub2() {
     return {value: 'I am sub2'}
 }
 
+// @ts-ignore: Unreachable code error 
 function myFoo() {
     foo()
 }
 
+// @ts-ignore: Unreachable code error 
 function myBar() {
     bar()
 }

@@ -31,10 +31,8 @@
     // babel任せなので不要
     // "outDir": "dist",                        /* Redirect output structure to the directory. */
     
-// ここから      
-/// --------------------------------------------      
+    // プロジェクトのルートディレクトリ（tscコマンドに渡すTypeScriptコードを含んだルートディレクトリ）
     // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-/// --------------------------------------------      
 
     // "composite": true,                     /* Enable project compilation */
     // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
@@ -48,8 +46,8 @@
 
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */
-    // 暗黙的な anyを許したり    
     // ----------------------------------------------------------
+    // 暗黙的な anyを許したり... つまりだめ
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
     // "strictNullChecks": true,              /* Enable strict null checks. */
     // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
@@ -60,10 +58,16 @@
     // ----------------------------------------------------------
     
     /* Additional Checks */
-    // "noUnusedLocals": true,                /* Report errors on unused locals. */
-    // "noUnusedParameters": true,            /* Report errors on unused parameters. */
-    // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
-    // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
+    // ----------------------------------------------------------
+    // strict 以上に厳しく
+    // 未使用変数
+    "noUnusedLocals": true,                /* Report errors on unused locals. */
+    // 未使用引い数
+    "noUnusedParameters": true,            /* Report errors on unused parameters. */
+    "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
+    "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
+    // ----------------------------------------------------------
+
 
     /* Module Resolution Options */
     // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
@@ -96,13 +100,16 @@
   },
 
   // ビルドから除外
-  "exclude": [],
+  // "exclude": [],
+
   // ビルドに含むファイル "exclude"より弱い
-  "include": [
-    "./src/**/*"
-  ],
+  // "include": [
+  //   "./src/**/*"
+  // ],
+
   // ビルドに含むファイル "exclude"より強い
   // "files": [],
+  
   // tsconfigの継承
   // "extends": ""
 }
