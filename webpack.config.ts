@@ -28,7 +28,10 @@ const config: webpack.Configuration = {
   
   // import 文で .ts ファイルを解決するため
   resolve: {
-      extensions: [".ts"]
+      extensions: [".ts"],
+      alias: {
+        '@xxx': path.resolve(__dirname, '/src')
+      },
   },
   
   module: {

@@ -1,4 +1,4 @@
-import {foo} from './sub/foo'
+import {foo} from '@xxx/sub/foo'
 
 export {
     main,

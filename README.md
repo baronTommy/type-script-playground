@@ -28,7 +28,14 @@ preset-envに含まれる日が来たら、これらのプラグインは不要�
 ## webpack.config.ts 化
 ts-node があれば tsもOK
 
+## babel.config.ts 化
+まだないっぽい
 
+```bash
+# 型チェック -> TSC
+# トランスパイル, 
+tsc && webpack
+```
 
 ```bash
 # ビルド時の tsconfigのパス
