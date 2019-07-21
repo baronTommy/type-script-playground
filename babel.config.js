@@ -15,7 +15,18 @@ const plugins = [
     // 今はまだpreset-envには含まれていない文法も使えるようにしておく。
     // preset-envに含まれる日が来たら、これらのプラグインは不要になるはず。
     "@babel/proposal-class-properties",
-    "@babel/proposal-object-rest-spread"
+    "@babel/proposal-object-rest-spread",
+
+    // aliasを使うため
+    [
+        require.resolve('babel-plugin-module-resolver'),
+        {
+          alias: {
+            "@src": "./src",
+            "@sub": "./src/sub"
+          },
+        }
+    ]
 ]
 
 module.exports = { presets, plugins }

@@ -1,4 +1,5 @@
-import {foo} from '@xxx/sub/foo'
+import {foo} from '@src/sub/foo'
+import {bar} from '@sub/bar'
 
 export {
     main,
@@ -20,4 +21,8 @@ function sub2() {
 
 function myFoo() {
     foo()
+}
+
+function myBar() {
+    bar()
 }
