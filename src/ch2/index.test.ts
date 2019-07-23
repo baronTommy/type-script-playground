@@ -50,6 +50,17 @@ describe("ch2", () => {
     expect(droid).toBeDefined()
   })
 
+  it('Symbol', () => {
+    // const a = Symbol()
+    // const b = Symbol()
+    // Symbolは、 a === b にならない
+    // objectのkeyとして使うと良さげ？
+
+    const a = Symbol()
+
+    expect(typeof a === 'symbol').toBe(true)
+  })
+
   it('Union Type', () => {
     const v: number | string = '123'
     expect(v).toBeDefined()
@@ -67,4 +78,51 @@ describe("ch2", () => {
     const v: 0 | 5 = 5
     expect(v).toBeDefined()
   })
+
+  it('typeof', () => {
+    const myName = 'foo'
+
+    // typeof のテク 変数を指定できる
+    // @ts-ignore
+    const friendName: typeof myName
+
+    // @ts-ignore
+    expect(typeof friendName === 'string')
+  })
+
+  it('keyof', () => {
+      type SomeType = {
+          foo: string
+          bar: string
+      }
+
+      // foo or bar みたいな限定が可能
+      const someKey: keyof SomeType = 'foo'
+      expect(someKey === 'foo' || 'bar').toBe(true)
+  })
+
+  it('keyof と typeof の併用', () => {
+      // objectのkeyのみしか受け付けない
+
+      const x = {
+          foo: 'aaa',
+          bar: 'bbb'
+      }
+
+      let y: keyof typeof x = 'foo'
+      expect(y).toBe('foo')
+  })
+
+  it('enum', () => {
+      // enum は アッパーケースが良いらしい
+      enum Direction {
+          Up,
+          Down,
+          // ...
+      }
+
+      expect(Direction.Up).toBe(Direction.Up)
+
+  })
+
 });
