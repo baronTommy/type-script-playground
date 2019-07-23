@@ -81,11 +81,24 @@ it("typeof", () => {
   const myName = "foo";
 
   // typeof のテク 変数を指定できる
-  // @ts-ignore
-  const friendName: typeof myName;
+  let friendName: typeof myName;
 
-  // @ts-ignore
-  expect(typeof friendName === "string");
+  friendName = 'foo'
+  expect(friendName === "foo");
+});
+
+it("typeof その2", () => {
+  const userInfo = {
+    id: 1,
+    name: 'foo',
+  }
+
+  const friendInfo: typeof userInfo = {
+    id: 99,
+    name: 'bar'
+  }
+
+  expect(typeof friendInfo.id).toBe(typeof userInfo.id)
 });
 
 it("keyof", () => {
