@@ -5,7 +5,10 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && webpack",
-    "pre-commit": "tsc && jest"
+    "pre-commit": "tsc && jest",
+    
+    "watch:test": "jest --watch"
+
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

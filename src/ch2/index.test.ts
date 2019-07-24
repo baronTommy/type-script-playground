@@ -134,3 +134,26 @@ it("enum", () => {
 
   expect(Direction.Up).toBe(Direction.Up);
 });
+
+it("Tuple", () => {
+  // Tuple ではない
+  const tupleStrNum1 = ['x', 2];
+  // 型推論が効かない (string|number)[] である
+  // tupleStrNum1[0].length <- NG
+  expect(tupleStrNum1.pop()).toBe(2)
+
+  // Tuple である
+  const tupleStrNum4 = ['x', 2] as const
+  // 型推論が効く
+  expect(tupleStrNum4[0].length).toBe(1)
+});
+
+it("Tuple おまけ", () => {
+  // Tuple その1 昔のTS用
+  const tupleStrNum2 = ['x', 2] as [string, number]
+  expect(tupleStrNum2[0].length).toBe(1)
+
+  // Tuple その2 昔のTS用
+  const tupleStrNum3: [string, number] = ['x', 2];
+  expect(tupleStrNum3[0].length).toBe(1)
+});
