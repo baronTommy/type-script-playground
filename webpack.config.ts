@@ -34,7 +34,6 @@ const config: webpack.Configuration = {
   module: {
     rules
   },
-
 };
 
 export default config;
