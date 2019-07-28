@@ -1,19 +1,28 @@
-import { RxHR } from "@akanass/rx-http-request";
+import { RxHR, RxHttpRequestResponse } from "@akanass/rx-http-request";
 import { tap } from "rxjs/operators";
-import { Observer } from "rxjs";
+import {Observable, of} from 'rxjs'
 
-function fetData() {
-  return RxHR.get("https://api.zipaddress.net/")
-    .pipe(
-      tap({
-        next: () => console.log("ok"),
-        error: () => console.log("error"),
-        complete: () => console.log("complete")
-      })
-    )
-    .subscribe();
+const isSuccess = (code: number) => code === 200
+const fetchZipAddress = () =>  RxHR.get("https://api.zipaddress.net/")
+
+const fetData = (f: Observable<RxHttpRequestResponse>) => {
+  return f.pipe(
+    tap({
+      next: p => {
+        console.log(isSuccess(p.response.statusCode))
+      },
+      error: e => console.log(e),
+      complete: () => console.log("complete")
+    })
+  );
 }
 
-it("aa", () => {
-  expect(true).toBe(true)
+it("aa", done => {
+  const end = () => done()
+
+  fetData(of()).subscribe(
+    end, end, end
+  );
+
+  expect(true).toBe(true);
 });
