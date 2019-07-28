@@ -50,26 +50,21 @@ it("正常系", () => {
   });
 });
 
-const fun = (p: Observable<string | any>) =>
+it("異常系", () => {
+  const fun = (p: Observable<string | any>) =>
   p.pipe(
     finalize(() => console.log("finalize")),
     delay(1000),
     map(identity),
     catchError(() => throwError("yabai X"))
   );
-
-it("異常系", () => {
   const l = ["a", "b", "c"];
   const data = [of(...l), throwError({ message: "throwError" })];
   const resources$ = concat(...data);
 
   fun(resources$).subscribe(
-    r => {
-      expect(r).toBe(l.shift());
-    },
-    e => {
-      expect(e).toBe('yabai X')
-    },
+    r => expect(r).toBe(l.shift()),
+    e => expect(e).toBe('yabai X'),
     () => console.log("fix")
   );
 });
