@@ -91,3 +91,30 @@ it("Mapped Types", () => {
       isAdmin: false
     })
 });
+
+
+it("Mapped Types2", () => {
+  type Auth = {
+      insert: boolean
+      delete: boolean
+      update: boolean
+  }
+
+  type AuthDescription<T, U> = {
+    [K in keyof T]: T[K] extends U ? string : never
+  }
+
+  const fooStaffAuth: Auth = {
+    insert: false,
+    delete: false,
+    update: true
+  }
+
+  const fooStaffAuthDesc: AuthDescription<Auth, boolean> = {
+    insert: '権限ないからだめ',
+    delete: '全然だめ',
+    update: 'これならOK'
+  }
+  expect(Object.keys(fooStaffAuth)).toMatchObject(Object.keys(fooStaffAuthDesc))
+  
+});
