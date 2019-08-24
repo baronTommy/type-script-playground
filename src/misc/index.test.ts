@@ -164,24 +164,210 @@ it("call, apply, bind", () => {
 
   const Falcon = {
     name: "鷹",
-    fly(suffix = '*') {
-      return `${this.name}が大空を飛びました${suffix}`
+    fly(suffix = "*") {
+      return `${this.name}が大空を飛びました${suffix}`;
     }
   };
 
   // 普通の呼び出し
-  expect(Falcon.fly()).toBe('鷹が大空を飛びました*')
+  expect(Falcon.fly()).toBe("鷹が大空を飛びました*");
 
-  expect(Falcon.fly.call(Penguin)).toBe('ペンギンが大空を飛びました*')
-  expect(Falcon.fly.call(Penguin, '**')).toBe('ペンギンが大空を飛びました**')
+  expect(Falcon.fly.call(Penguin)).toBe("ペンギンが大空を飛びました*");
+  expect(Falcon.fly.call(Penguin, "**")).toBe("ペンギンが大空を飛びました**");
 
-  expect(Falcon.fly.apply(Penguin)).toBe('ペンギンが大空を飛びました*')
-  expect(Falcon.fly.apply(Penguin,['**'])).toBe('ペンギンが大空を飛びました**')
+  expect(Falcon.fly.apply(Penguin)).toBe("ペンギンが大空を飛びました*");
+  expect(Falcon.fly.apply(Penguin, ["**"])).toBe(
+    "ペンギンが大空を飛びました**"
+  );
 
+  const flyPenguin = Falcon.fly.bind(Penguin);
+  expect(flyPenguin()).toBe("ペンギンが大空を飛びました*");
+
+  const flyPenguin2 = Falcon.fly.bind(Penguin, "**");
+  expect(flyPenguin2()).toBe("ペンギンが大空を飛びました**");
+});
+
+it("! lens", () => {
+  const x: any = "";
+  expect(x!.y).toBeUndefined();
+});
+
+it("絞り込み 1", () => {
+  type A = { base: string };
+  type V1 = A & { a: number };
+  type V2 = A & { b: string };
+
+  type X = V1 | V2;
+
+  const hasA = (params: A): params is V1 => params.hasOwnProperty("a");
+
+  const main = (params: X) => {
+    if (hasA(params)) {
+      console.log(params.a);
+    }
+  };
+
+  expect(main).toBeDefined();
+});
+
+it("絞り込み 2", () => {
+  type A = { base: string };
+  type V1 = A & { a: number; __typeIs: "V1" };
+  type V2 = A & { b: string; __typeIs: "V2" };
+
+  type X = V1 | V2;
+
+  const main = (params: X) => {
+    if (params.__typeIs === "V1") {
+      params.a;
+    }
+  };
+
+  expect(main).toBeDefined();
+});
+
+it("絞り込み 3", () => {
+  class Base {
+    base!: string;
+  }
+
+  class A1 extends Base {
+    a!: string;
+  }
+
+  class B1 extends Base {
+    b!: string;
+  }
+
+  type YABAI = A1 | B1;
+
+  const main = (p: YABAI) => {
+    if (p instanceof A1) {
+      p.a;
+    }
+  };
+
+  expect(main).toBeDefined();
+});
+
+it("絞り込み 4", () => {
+  type A = { base: string };
+  type V1 = A & { a: number; aa: number };
+  type V2 = A & { b: string };
+
+  type X = V1 | V2;
+
+  const main = (params: X) => {
+    if ("a" in params) {
+      params.a;
+      params.aa; // 型確定してるので これもいける
+    }
+  };
+
+  expect(main).toBeDefined();
+});
+
+it("Generics 制約", () => {
+  type Input = {
+    name: string;
+  };
+
+  const main = <P extends Input>(p: P) => {
+    p.name;
+  };
+
+  // Input の要件を満たしていればOK
+  main({ name: "", bar: "" });
+
+  expect(true).toBeTruthy();
+});
+
+it("Generics 複数", () => {
+  const t_u = <T, U>(p: T, p2: U) => ({ ...p, ...p2 });
+
+  const merged = t_u({ a: "aa" }, { b: "bb" });
+  const merged2 = t_u({ a: "aa" } as const, { b: "bb" } as const);
+
+  expect(merged.a).toBeDefined();
+  const x: typeof merged2.a = "aa";
+
+  expect(x).toBeDefined();
+
+  const x2: typeof merged = {a: 'ok', b: 'hi'}
+  expect(x2).toBeDefined()
+});
+
+it("Generics 連携", () => {
+  type FB = {
+    foo: string
+    bar: string
+  }
+
+  const fb: FB = {foo: 'f', bar: 'b' }
+
+  const find = <T extends FB, U extends keyof T>(p: T, k: U) => p[k]
+
+  find(fb, 'foo')
   
-  const flyPenguin = Falcon.fly.bind(Penguin); 
-  expect(flyPenguin()).toBe('ペンギンが大空を飛びました*')
+  // 型推論 のたｍエラー
+  // find(fb, 'hoge')
+});
 
-  const flyPenguin2 = Falcon.fly.bind(Penguin,'**');
-  expect(flyPenguin2()).toBe('ペンギンが大空を飛びました**')
+
+it("type safe object", () => {
+  type Tpl = {
+    code: number
+    label: string
+  }
+
+  type TypeFactory<T extends Tpl> =  T
+
+  const foo = {code: 100, label: 'foo'} as const
+  type Foo = TypeFactory<typeof foo>
+
+  const bar = {code: 200, label: 'bar'} as const
+  type Bar = TypeFactory<typeof bar>
+
+  type ServiceStatus = Foo | Bar
+
+  // https://github.com/Microsoft/TypeScript/issues/13923#issue-205837616
+  type DeepReadonly<T> = {
+    readonly [P in keyof T]: DeepReadonly<T[P]>;
+  }
+
+  type RS = DeepReadonly<ServiceStatus[]>
+  
+  const serviceStatusDic:RS  = [
+    { code: 100, label: "foo" },
+    { code: 200, label: "bar" },
+
+    // { cobe: 200, label: "bar" }, // エラー
+    // { code: 300, label: "bar" }, // エラー
+    // { code: 200, lightNovel: 'bar' }, // エラー
+    // { code: 200, label: "f00" }, // エラー
+    // { code: 100, label: "bar" } // エラー
+  ]
+
+  // https://booth.pm/ja/items/1317204 参考
+  const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
+    // 省略
+  }
+  find(foo, 'code')
+  find(bar, 'code')
+  // find(bar, 'x') // エラー
+
+  const find2 = <T extends RS, U extends ServiceStatus>(o: T, k: U) => {
+    // 省略
+  }
+  find2(serviceStatusDic, foo)
+  find2(serviceStatusDic, bar)
+  // find2({}, bar) // エラー
+  // find2(serviceStatusDic, {code: 1, label: 'bar'})  // エラー
+
+  const find3 = <T extends RS, U extends ServiceStatus['code']>(o: T, k: U) => {
+    // 省略
+  }
+  find3(serviceStatusDic, 100)
+  find3(serviceStatusDic, 200)
+  // find3(serviceStatusDic, 300) // エラー
 });
