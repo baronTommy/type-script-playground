@@ -5,7 +5,7 @@ type Tpl = {
 
 // https://github.com/Microsoft/TypeScript/issues/13923#issue-205837616
 type DeepReadonly<T> = {
-    readonly [P in keyof T]: DeepReadonly<T[P]>;
+  readonly [P in keyof T]: DeepReadonly<T[P]>;
 }
 
 class Foo implements Tpl {
@@ -56,7 +56,3 @@ const labelXxx: WhitelistLabel = "xxx"; // xxxはエラーになる
 // 再代入は不可
 serviceStatusDic[0] = { code: 100, label: "foo" }
 serviceStatusDic[1].cobe = 100
-
-
-
-

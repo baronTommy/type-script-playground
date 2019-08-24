@@ -22,7 +22,8 @@ const plugins = [
     // TypeScriptの文法には既に含まれているけど、
     // 今はまだpreset-envには含まれていない文法も使えるようにしておく。
     // preset-envに含まれる日が来たら、これらのプラグインは不要になるはず。
-    "@babel/proposal-class-properties",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties", { "loose" : true }],
     "@babel/proposal-object-rest-spread",
 
     // aliasを使うため
