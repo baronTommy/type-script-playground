@@ -293,81 +293,120 @@ it("Generics 複数", () => {
 
   expect(x).toBeDefined();
 
-  const x2: typeof merged = {a: 'ok', b: 'hi'}
-  expect(x2).toBeDefined()
+  const x2: typeof merged = { a: "ok", b: "hi" };
+  expect(x2).toBeDefined();
 });
 
 it("Generics 連携", () => {
   type FB = {
-    foo: string
-    bar: string
-  }
+    foo: string;
+    bar: string;
+  };
 
-  const fb: FB = {foo: 'f', bar: 'b' }
+  const fb: FB = { foo: "f", bar: "b" };
 
-  const find = <T extends FB, U extends keyof T>(p: T, k: U) => p[k]
+  const find = <T extends FB, U extends keyof T>(p: T, k: U) => p[k];
 
-  find(fb, 'foo')
-  
+  find(fb, "foo");
+
   // 型推論 のたｍエラー
   // find(fb, 'hoge')
 });
 
-
 it("type safe object", () => {
   type Tpl = {
-    code: number
-    label: string
-  }
+    code: number;
+    label: string;
+  };
 
-  type TypeFactory<T extends Tpl> =  T
+  type TypeFactory<T extends Tpl> = T;
 
-  const foo = {code: 100, label: 'foo'} as const
-  type Foo = TypeFactory<typeof foo>
+  const foo = { code: 100, label: "foo" } as const;
+  type Foo = TypeFactory<typeof foo>;
 
-  const bar = {code: 200, label: 'bar'} as const
-  type Bar = TypeFactory<typeof bar>
+  const bar = { code: 200, label: "bar" } as const;
+  type Bar = TypeFactory<typeof bar>;
 
-  type ServiceStatus = Foo | Bar
+  type ServiceStatus = Readonly<Foo | Bar>;
 
-  // https://github.com/Microsoft/TypeScript/issues/13923#issue-205837616
-  type DeepReadonly<T> = {
-    readonly [P in keyof T]: DeepReadonly<T[P]>;
-  }
-
-  type RS = DeepReadonly<ServiceStatus[]>
-  
-  const serviceStatusDic:RS  = [
+  const serviceStatusDic: ServiceStatus[] = [
     { code: 100, label: "foo" },
-    { code: 200, label: "bar" },
-
+    { code: 200, label: "bar" }
     // { cobe: 200, label: "bar" }, // エラー
     // { code: 300, label: "bar" }, // エラー
     // { code: 200, lightNovel: 'bar' }, // エラー
     // { code: 200, label: "f00" }, // エラー
     // { code: 100, label: "bar" } // エラー
-  ]
+  ];
 
   // https://booth.pm/ja/items/1317204 参考
   const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
     // 省略
-  }
-  find(foo, 'code')
-  find(bar, 'code')
+  };
+  find(foo, "code");
+  find(bar, "code");
   // find(bar, 'x') // エラー
 
-  const find2 = <T extends RS, U extends ServiceStatus>(o: T, k: U) => {
+  const find2 = <T extends ServiceStatus[], U extends ServiceStatus>(
+    o: T,
+    k: U
+  ) => {
     // 省略
-  }
-  find2(serviceStatusDic, foo)
-  find2(serviceStatusDic, bar)
+  };
+  find2(serviceStatusDic, foo);
+  find2(serviceStatusDic, bar);
   // find2({}, bar) // エラー
   // find2(serviceStatusDic, {code: 1, label: 'bar'})  // エラー
 
-  const find3 = <T extends RS, U extends ServiceStatus['code']>(o: T, k: U) => {
+  const find3 = <T extends ServiceStatus[], U extends ServiceStatus["code"]>(
+    o: T,
+    k: U
+  ) => {
     // 省略
-  }
-  find3(serviceStatusDic, 100)
-  find3(serviceStatusDic, 200)
+  };
+  find3(serviceStatusDic, 100);
+  find3(serviceStatusDic, 200);
   // find3(serviceStatusDic, 300) // エラー
+});
+
+it("type safe object2", () => {
+  type Tpl = {
+    code: number;
+    label: string;
+  };
+
+  class Foo implements Tpl {
+    code!: 100;
+    label!: "foo";
+  }
+
+  class Bar implements Tpl {
+    code!: 200;
+    label!: "bar";
+  }
+
+  type ServiceStatus = Readonly<Foo | Bar>;
+
+  type RS = DeepReadonly<ServiceStatus[]>;
+
+  const serviceStatusDic: RS = [
+    { code: 100, label: "foo" },
+    { code: 200, label: "bar" }
+  ];
+
+  // https://booth.pm/ja/items/1317204 参考
+  const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
+    // 省略
+  };
+  find(new Foo(), "code");
+
+  const find2 = <T extends RS, U extends ServiceStatus>(o: T, k: U) => {
+    // 省略
+  };
+  find2(serviceStatusDic, new Foo());
+
+  const find3 = <T extends RS, U extends ServiceStatus["code"]>(o: T, k: U) => {
+    // 省略
+  };
+  find3(serviceStatusDic, 100);
 });
