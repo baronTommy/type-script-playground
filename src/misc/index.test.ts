@@ -153,8 +153,35 @@ it("Proxy", () => {
   const wrapObj = new Proxy<Obj>(obj, handler);
   expect(wrapObj.firstName).toBe("getされたよ");
 
-
-  const foo = () =>  wrapObj.firstName = ''
-  expect(foo).toThrow('上書き禁止')
+  const foo = () => (wrapObj.firstName = "");
+  expect(foo).toThrow("上書き禁止");
 });
 
+it("call, apply, bind", () => {
+  const Penguin = {
+    name: "ペンギン"
+  };
+
+  const Falcon = {
+    name: "鷹",
+    fly(suffix = '*') {
+      return `${this.name}が大空を飛びました${suffix}`
+    }
+  };
+
+  // 普通の呼び出し
+  expect(Falcon.fly()).toBe('鷹が大空を飛びました*')
+
+  expect(Falcon.fly.call(Penguin)).toBe('ペンギンが大空を飛びました*')
+  expect(Falcon.fly.call(Penguin, '**')).toBe('ペンギンが大空を飛びました**')
+
+  expect(Falcon.fly.apply(Penguin)).toBe('ペンギンが大空を飛びました*')
+  expect(Falcon.fly.apply(Penguin,['**'])).toBe('ペンギンが大空を飛びました**')
+
+  
+  const flyPenguin = Falcon.fly.bind(Penguin); 
+  expect(flyPenguin()).toBe('ペンギンが大空を飛びました*')
+
+  const flyPenguin2 = Falcon.fly.bind(Penguin,'**');
+  expect(flyPenguin2()).toBe('ペンギンが大空を飛びました**')
+});
