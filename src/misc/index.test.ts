@@ -327,9 +327,14 @@ it("type safe object", () => {
   const bar = { code: 200, label: "bar" } as const;
   type Bar = TypeFactory<typeof bar>;
 
-  type ServiceStatus = Readonly<Foo | Bar>;
+  type ServiceStatus = Foo | Bar;
 
-  const serviceStatusDic: ServiceStatus[] = [
+  // https://github.com/Microsoft/TypeScript/issues/13923#issue-205837616
+  type DeepReadonly<T> = { readonly [P in keyof T]: DeepReadonly<T[P]> };
+
+  type DRServiceStatus = DeepReadonly<ServiceStatus[]>;
+
+  const serviceStatusDic: DRServiceStatus = [
     { code: 100, label: "foo" },
     { code: 200, label: "bar" }
     // { cobe: 200, label: "bar" }, // エラー
@@ -339,7 +344,7 @@ it("type safe object", () => {
     // { code: 100, label: "bar" } // エラー
   ];
 
-  // https://booth.pm/ja/items/1317204 参考
+  // https://www.typescriptlang.org/docs/handbook/advanced-types.html 参考
   const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
     // 省略
   };
@@ -347,7 +352,7 @@ it("type safe object", () => {
   find(bar, "code");
   // find(bar, 'x') // エラー
 
-  const find2 = <T extends ServiceStatus[], U extends ServiceStatus>(
+  const find2 = <T extends DRServiceStatus, U extends ServiceStatus>(
     o: T,
     k: U
   ) => {
@@ -358,7 +363,7 @@ it("type safe object", () => {
   // find2({}, bar) // エラー
   // find2(serviceStatusDic, {code: 1, label: 'bar'})  // エラー
 
-  const find3 = <T extends ServiceStatus[], U extends ServiceStatus["code"]>(
+  const find3 = <T extends DRServiceStatus, U extends ServiceStatus["code"]>(
     o: T,
     k: U
   ) => {
@@ -387,26 +392,158 @@ it("type safe object2", () => {
 
   type ServiceStatus = Readonly<Foo | Bar>;
 
-  type RS = DeepReadonly<ServiceStatus[]>;
+  // https://github.com/Microsoft/TypeScript/issues/13923#issue-205837616
+  type DeepReadonly<T> = { readonly [P in keyof T]: DeepReadonly<T[P]> };
 
-  const serviceStatusDic: RS = [
+  type DRServiceStatus = DeepReadonly<ServiceStatus[]>;
+
+  const serviceStatusDic: DRServiceStatus = [
     { code: 100, label: "foo" },
     { code: 200, label: "bar" }
   ];
 
-  // https://booth.pm/ja/items/1317204 参考
+  // https://www.typescriptlang.org/docs/handbook/advanced-types.html 参考
   const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
     // 省略
   };
   find(new Foo(), "code");
 
-  const find2 = <T extends RS, U extends ServiceStatus>(o: T, k: U) => {
+  const find2 = <T extends DRServiceStatus, U extends ServiceStatus>(
+    o: T,
+    k: U
+  ) => {
     // 省略
   };
   find2(serviceStatusDic, new Foo());
 
-  const find3 = <T extends RS, U extends ServiceStatus["code"]>(o: T, k: U) => {
+  const find3 = <T extends DRServiceStatus, U extends ServiceStatus["code"]>(
+    o: T,
+    k: U
+  ) => {
     // 省略
   };
   find3(serviceStatusDic, 100);
+});
+
+it("Tuple -> Union", () => {
+  type A = ["a", "b", "c"];
+  type TU<T> = T extends (infer I)[] ? I : never;
+  const aValue: TU<A> = "a";
+
+  expect(aValue).toBeDefined();
+});
+
+it("Map -> Union", () => {
+  type A = {
+    a: "aa";
+    b: "bb";
+  };
+  type MU<T> = T extends { [k: string]: infer I } ? I : never;
+
+  const aValue: MU<A> = "aa";
+  expect(aValue).toBeDefined();
+});
+
+it("Tuple -> Union その2", () => {
+  const A = [{ a: 0, x: "abc" }, { b: 99 }];
+
+  type TU<T> = T extends (infer I)[] ? I : never;
+  const aValue: keyof TU<typeof A> = "x";
+
+  expect(aValue).toBeDefined();
+});
+
+it("index type", () => {
+  interface Dictionary<T> {
+    [key: string]: T;
+  }
+  const key: keyof Dictionary<any> = 0; // string | number
+  expect(key).toBeDefined();
+
+  const value: Dictionary<number>[""] = 0; // number
+  expect(value).toBeDefined();
+});
+
+it("交差での追加", () => {
+  type PartialWithNewMember<T> = { [P in keyof T]?: T[P] } & {
+    newMember: boolean;
+  };
+
+  const p: PartialWithNewMember<{}> = {
+    newMember: false
+  };
+  expect(p).toBeDefined();
+});
+
+it("タプル", () => {
+  // stringが1つ以上
+  type KeyT = [string, ...string[]];
+  // [T, T, T] を T | T | Tに 変更
+  type TU<T> = T extends (infer I)[] ? I : never;
+
+  type StringKeys = "k1" | "k2";
+  type StringKeys2 = "x1" | "x2" | "x3";
+
+  type Flags<T extends TU<KeyT>> = { [K in T]: boolean };
+
+  const f: Flags<StringKeys> = { k1: false, k2: true };
+  const f2: Flags<StringKeys2> = { x1: false, x2: true, x3: false };
+
+  expect(f).toBeDefined();
+  expect(f2).toBeDefined();
+});
+
+it("typename", () => {
+  type TypeName<T> = T extends string
+    ? "string"
+    : T extends number
+    ? "number"
+    : T extends boolean
+    ? "boolean"
+    : T extends undefined
+    ? "undefined"
+    : T extends null
+    ? "null"
+    : T extends Function
+    ? "function"
+    : T extends []
+    ? "array"
+    : T extends Array<any>
+    ? "any-array"
+    : "object";
+
+  const a: TypeName<string> = "string";
+  expect(a).toBeDefined();
+
+  const b: TypeName<{}> = "object";
+  expect(b).toBeDefined();
+
+  const c: TypeName<[]> = "array";
+  expect(c).toBeDefined();
+
+  const d: TypeName<null> = "null";
+  expect(d).toBeDefined();
+
+  const e: TypeName<string[] | number[]> = "any-array";
+  expect(e).toBeDefined();
+});
+
+it("Diff, Filter", () => {
+  type Diff<T, U> = T extends U ? never : T;
+  type Filter<T, U> = T extends U ? T : never;
+
+  type Base = "a" | "b" | "c";
+  type Input1 = "c" | "a" | "b";
+  type Input2 = "a" | "x" | "y";
+
+  // @ts-ignore
+  const x: Diff<Base, Input1>;
+  const x2: Diff<Base, Input2> = "b";
+  expect(x2).toBeDefined();
+
+  const y: Filter<Base, Input1> = "b";
+  const y2: Filter<Base, Input2> = "a";
+
+  expect(y).toBeDefined();
+  expect(y2).toBeDefined();
 });

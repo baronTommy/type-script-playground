@@ -1,4 +1,4 @@
-import {validate, Length} from "class-validator";
+import { validate, Length } from "class-validator";
 
 it("classの基本", () => {
   class Aa {
@@ -133,39 +133,108 @@ it("classの基本5 get set", () => {
 });
 
 it("classの基本 decorator ", async () => {
-    class Post {
-        @Length(3, 100)
-        title!: string;
+  class Post {
+    @Length(3, 100)
+    title!: string;
 
-        @Length(3, 100)
-        body!: string;
-    }
-    const post = new Post();
-    post.title = "AB";
-    post.body = "XX";
+    @Length(3, 100)
+    body!: string;
+  }
+  const post = new Post();
+  post.title = "AB";
+  post.body = "XX";
 
-    expect((await validate(post)).length).toBe(2)
+  expect((await validate(post)).length).toBe(2);
 
-    // for (const error of await validate(post)) {
-    //     console.log(error)
-    // }
+  // for (const error of await validate(post)) {
+  //     console.log(error)
+  // }
 });
 
 it("classの基本 decorator ", async () => {
-    class Post {
-        @Length(3, 100)
-        title!: string;
+  class Post {
+    @Length(3, 100)
+    title!: string;
 
-        @Length(3, 100)
-        body!: string;
-    }
-    
-    // 継承 OK
-    class X extends Post { }
+    @Length(3, 100)
+    body!: string;
+  }
 
-    const x = new X();
-    x.title = "AB";
-    x.body = "XX";
-    expect((await validate(x)).length).toBe(2)
-   
+  // 継承 OK
+  class X extends Post {}
+
+  const x = new X();
+  x.title = "AB";
+  x.body = "XX";
+  expect((await validate(x)).length).toBe(2);
+});
+
+// mixin
+
+it("mixin", async () => {
+  // コンストラクタをとり、
+  // コンストラクタを拡張し、新しい機能を持つクラスを作成する
+  // 新しいクラスを返す
+
+  type Constructor<T = {}> = new (...args: any[]) => T;
+
+  ////////////////////
+  // Example mixins
+  ////////////////////
+
+  // A mixin that adds a property
+  function Timestamped<TBase extends Constructor>(Base: TBase) {
+    return class extends Base {
+      timestamp = Date.now();
+    };
+  }
+
+  // a mixin that adds a property and methods
+  function Activatable<TBase extends Constructor>(Base: TBase) {
+    return class extends Base {
+      name = "Activatable";
+      isActivated = false;
+
+      // できない事もない
+      @Length(3, 100)
+      title!: string;
+
+      activate() {
+        this.isActivated = true;
+      }
+
+      deactivate() {
+        this.isActivated = false;
+      }
+    };
+  }
+
+  ////////////////////
+  // Usage to compose classes
+  ////////////////////
+
+  // Simple class
+  class User {
+    name = "user";
+  }
+
+  const TimestampedActivatableUser = Timestamped(Activatable(User));
+  const timestampedActivatableUserExample = new TimestampedActivatableUser();
+
+  expect(timestampedActivatableUserExample.name).toBe("Activatable");
+  expect(timestampedActivatableUserExample.timestamp).toBeDefined();
+
+  // クラスバリデ デコレータとの相性
+  timestampedActivatableUserExample.title = "B";
+  expect((await validate(timestampedActivatableUserExample)).length).toBe(1);
+});
+
+it("型の絞り込み", () => {
+  type Name = string;
+  type NameResolver = () => string;
+  type NameOrResolver = Name | NameResolver;
+
+  const getName = (n: NameOrResolver): Name =>
+    typeof n === "string" ? n : n();
+  expect(getName).toBeDefined();
 });
