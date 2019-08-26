@@ -31,11 +31,11 @@ const serviceStatusDic: DeepReadonly<ServiceStatus[]> = [
   
   // すべてエラー
   // -----------------------------------
-  { cobe: 200, label: "bar" },
-  { code: 300, label: "bar" },
-  { code: 200, lightNovel: "bar" },
-  { code: 200, label: "f00" },
-  { code: 100, label: "bar" }
+  // { cobe: 200, label: "bar" },
+  // { code: 300, label: "bar" },
+  // { code: 200, lightNovel: "bar" },
+  // { code: 200, label: "f00" },
+  // { code: 100, label: "bar" }
   // -----------------------------------
 ];
 
@@ -47,12 +47,12 @@ const find = _findMatchCodeFromServiceStatusDic; // alias
 
 find(100); // {code: 100, label: 'foo'}
 find(200); // {code: 200, label: 'bar'}
-find(999); // 999はエラーになる
+// find(999); // 999はエラーになる
 
 const label100: WhitelistLabel = "foo";
 const label200: WhitelistLabel = "bar";
-const labelXxx: WhitelistLabel = "xxx"; // xxxはエラーになる
+// const labelXxx: WhitelistLabel = "xxx"; // xxxはエラーになる
 
 // 再代入は不可
-serviceStatusDic[0] = { code: 100, label: "foo" }
-serviceStatusDic[1].cobe = 100
+// serviceStatusDic[0] = { code: 100, label: "foo" }
+// serviceStatusDic[1].cobe = 100

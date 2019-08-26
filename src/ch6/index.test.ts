@@ -1,6 +1,3 @@
-import { generate } from "rxjs";
-import { isPrimitive } from "util";
-
 it("Generics デフォルト値", () => {
   type Box<T = string> = {
     name: T;

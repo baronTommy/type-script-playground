@@ -80,7 +80,10 @@ it("型Tのコンストラクタの引数の型をタプルとして抽出", () 
   // https://log.pocka.io/posts/typescript-builtin-type-functions/
 
   class Foo {
-    constructor(arg1: string, arg2?: boolean) {}
+    constructor(arg1: string, arg2?: boolean) {
+      arg1;
+      arg2;
+    }
   }
   type FooP = ConstructorParameters<typeof Foo>;
 
@@ -143,9 +146,14 @@ it("Proxy", () => {
 
   const handler: ProxyHandler<Obj> = {
     set(target, prop, value) {
+      target;
+      prop;
+      value;
       throw new Error("上書き禁止");
     },
     get(target, name) {
+      target;
+      name;
       return "getされたよ";
     }
   };
@@ -346,6 +354,8 @@ it("type safe object", () => {
 
   // https://www.typescriptlang.org/docs/handbook/advanced-types.html 参考
   const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
+    o;
+    k;
     // 省略
   };
   find(foo, "code");
@@ -356,6 +366,8 @@ it("type safe object", () => {
     o: T,
     k: U
   ) => {
+    o;
+    k;
     // 省略
   };
   find2(serviceStatusDic, foo);
@@ -367,6 +379,8 @@ it("type safe object", () => {
     o: T,
     k: U
   ) => {
+    o;
+    k;
     // 省略
   };
   find3(serviceStatusDic, 100);
@@ -404,6 +418,8 @@ it("type safe object2", () => {
 
   // https://www.typescriptlang.org/docs/handbook/advanced-types.html 参考
   const find = <T extends ServiceStatus, U extends keyof T>(o: T, k: U) => {
+    o;
+    k;
     // 省略
   };
   find(new Foo(), "code");
@@ -412,6 +428,8 @@ it("type safe object2", () => {
     o: T,
     k: U
   ) => {
+    o;
+    k;
     // 省略
   };
   find2(serviceStatusDic, new Foo());
@@ -421,6 +439,8 @@ it("type safe object2", () => {
     k: U
   ) => {
     // 省略
+    o;
+    k;
   };
   find3(serviceStatusDic, 100);
 });
@@ -537,7 +557,7 @@ it("Diff, Filter", () => {
   type Input2 = "a" | "x" | "y";
 
   // @ts-ignore
-  const x: Diff<Base, Input1>;
+  let x: Diff<Base, Input1>;
   const x2: Diff<Base, Input2> = "b";
   expect(x2).toBeDefined();
 
@@ -546,4 +566,15 @@ it("Diff, Filter", () => {
 
   expect(y).toBeDefined();
   expect(y2).toBeDefined();
+});
+
+it("Arrayの宣言", () => {
+  const x = [...Array(5)]
+  expect(x).toBeDefined()
+  
+  const b = Array(5).slice();
+  expect(b).toBeDefined()
+});
+
+it("PickUp", () => {
 });

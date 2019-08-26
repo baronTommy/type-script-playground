@@ -196,7 +196,7 @@ it("mixin", async () => {
       isActivated = false;
 
       // できない事もない
-      @Length(3, 100)
+      // @Length(3, 100)
       title!: string;
 
       activate() {
@@ -225,8 +225,8 @@ it("mixin", async () => {
   expect(timestampedActivatableUserExample.timestamp).toBeDefined();
 
   // クラスバリデ デコレータとの相性
-  timestampedActivatableUserExample.title = "B";
-  expect((await validate(timestampedActivatableUserExample)).length).toBe(1);
+  // timestampedActivatableUserExample.title = "B";
+  // expect((await validate(timestampedActivatableUserExample)).length).toBe(1);
 });
 
 it("型の絞り込み", () => {

@@ -4,6 +4,7 @@ import {Observable, of} from 'rxjs'
 
 const isSuccess = (code: number) => code === 200
 const fetchZipAddress = () =>  RxHR.get("https://api.zipaddress.net/")
+fetchZipAddress
 
 const fetData = (f: Observable<RxHttpRequestResponse>) => {
   return f.pipe(

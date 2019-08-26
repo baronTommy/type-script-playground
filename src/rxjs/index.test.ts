@@ -4,7 +4,7 @@ import { map, catchError, tap, delay, finalize } from "rxjs/operators";
 import { deepStrictEqual } from "assert";
 import { TestScheduler } from "rxjs/testing";
 
-const log = (msg: string) => {};
+const log = (msg: string) => {msg};
 // logあると見づらいのでコメントに
 // console.log(msg);
 
@@ -14,7 +14,10 @@ const completeLog = () => console.log("on complete");
 
 const addToEnd = (p: string) => (base: string) => base.concat(p);
 
-const errorHandler = (p: string) => throwError("ya ba i");
+const errorHandler = (p: string) => {
+  p
+  return throwError("ya ba i");
+}
 
 const mainEffect = ({ next, error, complete }: Observer<string>) => ({
   next, // 新しい値が流れてきたときに
