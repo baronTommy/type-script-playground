@@ -23,7 +23,7 @@ it("ネストされた型もすべてオプショナルに", () => {
   type NestedPartial<T> = {
     [K in keyof T]?: T[K] extends Array<infer R>
       ? Array<NestedPartial<R>>
-      : NestedPartial<T[K]>
+      : NestedPartial<T[K]>;
   };
 
   interface Foo {
@@ -569,12 +569,96 @@ it("Diff, Filter", () => {
 });
 
 it("Arrayの宣言", () => {
-  const x = [...Array(5)]
-  expect(x).toBeDefined()
-  
+  const x = [...Array(5)];
+  expect(x).toBeDefined();
+
   const b = Array(5).slice();
-  expect(b).toBeDefined()
+  expect(b).toBeDefined();
 });
 
 it("PickUp", () => {
+  // T.has(U) ? T : never みたいな感じ
+  type Filter<T, U> = T extends U ? T : never;
+
+  // {
+  //   banana: { name: "banana", price: 10 },
+  //   apple: { name: "apple", price: 20 },
+  //   orange: never
+  // }
+  type FilterMap<T, U> = {
+    [K in keyof T]: T[K] extends Filter<T[K], U> ? T[K] : never;
+  };
+
+  // banana, apple
+  type NonNeverKeys<T> = {
+    [K in keyof T]: T[K] extends never ? never : K;
+  }[keyof T];
+
+  // {
+  //   banana: { name: "banana", price: 10 },
+  //   apple: { name: "apple", price: 20 },
+  // }
+  type PickUp<T, U> = Pick<T, NonNeverKeys<FilterMap<T, U>>>;
+
+  // ---------------------------------------
+  type FruitsMap = {
+    banana: { name: "banana"; price: number };
+    apple: { name: "apple"; price: number };
+    orange: { name: "orange" };
+  };
+  type P = { price: number };
+
+  const x: PickUp<FruitsMap, P> = {
+    banana: { name: "banana", price: 10 },
+    apple: { name: "apple", price: 20 }
+  };
+  expect(x).toBeDefined();
+});
+
+it("DropOff", () => {
+  type Filter<T, U> = T extends U ? T : never;
+
+  type FilterMap<T, U> = {
+    [K in keyof T]: T[K] extends Filter<T[K], U> ? T[K] : never;
+  };
+
+  type NeverKeys<T> = {
+    [K in keyof T]: T[K] extends never ? K : never;
+  }[keyof T];
+
+  type DropOff<T, U> = Pick<T, NeverKeys<FilterMap<T, U>>>;
+
+  // ---------------------------------------
+  type FruitsMap = {
+    banana: { name: "banana"; price: number };
+    apple: { name: "apple"; price: number };
+    orange: { name: "orange" };
+  };
+  type P = { price: number };
+
+  const x: DropOff<FruitsMap, P> = {
+    orange: { name: "orange" }
+  };
+  expect(x).toBeDefined();
+});
+
+it("", () => {
+  const MyObj = {
+    cnt: 0,
+    increment() {
+      this.cnt++;
+    },
+    decrement() {
+      this.cnt--;
+    },
+    pointLabel(unit: string) {
+      return `${this.cnt}${unit}`;
+    },
+    computePoint(compute = (cnt: number) => cnt) {
+      return compute(this.cnt);
+    },
+    getPointLabel() {
+      return (unit = '') => this.pointLabel(unit)
+    }
+  };
 });
