@@ -642,8 +642,29 @@ it("DropOff", () => {
   expect(x).toBeDefined();
 });
 
-it("", () => {
-  const MyObj = {
+it("myObj 型を抽出", () => {
+  // 上と同じ
+  // ---------------------------------------------------
+  type Filter<T, U> = T extends U ? T : never;
+
+  type FilterMap<T, U> = {
+    [K in keyof T]: T[K] extends Filter<T[K], U> ? T[K] : never;
+  };
+
+  type NeverKeys<T> = {
+    [K in keyof T]: T[K] extends never ? K : never;
+  }[keyof T];
+
+  type NonNeverKeys<T> = {
+    [K in keyof T]: T[K] extends never ? never : K;
+  }[keyof T];
+
+  type DropOff<T, U> = Pick<T, NeverKeys<FilterMap<T, U>>>;
+  type PickUp<T, U> = Pick<T, NonNeverKeys<FilterMap<T, U>>>;
+  // ---------------------------------------------------
+
+  // --------------------------------------------------
+  const myObj = {
     cnt: 0,
     increment() {
       this.cnt++;
@@ -658,7 +679,65 @@ it("", () => {
       return compute(this.cnt);
     },
     getPointLabel() {
-      return (unit = '') => this.pointLabel(unit)
+      return (unit = "") => this.pointLabel(unit);
     }
   };
+  // --------------------------------------------------
+
+  // 関数で無いものを抽出
+  type DropOffFunction<T> = DropOff<T, Function>;
+
+  // 戻りが U の物を抽出
+  type PickUpByReturnType<T, U> = PickUp<T, (...args: any[]) => U>;
+
+  type MyObj = typeof myObj;
+
+  type A = DropOffFunction<MyObj>;
+  const a: A = {
+    cnt: 0
+  };
+  expect(a).toBeDefined();
+
+  type B = PickUpByReturnType<MyObj, string>;
+  const b: B = {
+    pointLabel: () => ""
+  };
+  expect(b).toBeDefined();
+
+  // returnが void の抽出
+  // ---------------------------------------------------
+  // 関数の戻りの型を取得
+  type R<T> = T extends (...args: any[]) => infer I ? I : never;
+
+  // 関数の戻りの型が void の Tを返す
+  type RV<T> = T extends Function ? (R<T> extends void ? T : never) : never;
+  
+  // RVの map 化
+  type ReturnVoidMap<T> = {
+    [K in keyof T]: T[K] extends RV<T[K]> ? T[K] : never;
+  };
+
+  // return が void の propaty 名を取得して
+  // その propaty を 持つ object を再生
+  type PickUpReturnVoid<T> = Pick<T, NonNeverKeys<ReturnVoidMap<T>>>;
+  // ---------------------------------------------------
+
+  const x: PickUpReturnVoid<MyObj> = {
+    increment: () => {},
+    decrement: () => {}
+  };
+  expect(x).toBeDefined();
+});
+
+it("Promise の sleep", async () => {
+  const p = (): Promise<void> =>
+    new Promise(r =>
+      setTimeout(() => {
+        console.log('ok')
+        r();
+      }, 10)
+    );
+
+  const main = (): Promise<void> => p()
+  await main()
 });
