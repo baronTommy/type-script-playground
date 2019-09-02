@@ -711,7 +711,7 @@ it("myObj 型を抽出", () => {
 
   // 関数の戻りの型が void の Tを返す
   type RV<T> = T extends Function ? (R<T> extends void ? T : never) : never;
-  
+
   // RVの map 化
   type ReturnVoidMap<T> = {
     [K in keyof T]: T[K] extends RV<T[K]> ? T[K] : never;
@@ -733,11 +733,105 @@ it("Promise の sleep", async () => {
   const p = (): Promise<void> =>
     new Promise(r =>
       setTimeout(() => {
-        console.log('ok')
+        // console.log("ok");
         r();
       }, 10)
     );
 
-  const main = (): Promise<void> => p()
-  await main()
+  const main = (): Promise<void> => p();
+  await main();
+});
+
+it("例外処理", () => {
+  const yabai = () => {
+    try {
+      throw new Error("Something bad happened");
+    } catch (e) {
+      return e;
+    }
+  };
+
+  const callYabai = () => yabai();
+  // スタックトレースがあるので追いかけやすい
+  expect(callYabai).toBeDefined();
+});
+
+it("例外処理2", () => {
+  const yabai = () => {
+    try {
+      new Array(100000000000000000);
+    } catch (e) {
+      return e;
+    }
+  };
+
+  // RangeError: Invalid array length
+  // 数値変数またはパラメータが有効な範囲外にあるときに発生するエラーを表すインスタンスを作成します。
+  expect(yabai).toBeDefined();
+});
+
+it("例外処理3", () => {
+  const yabai = () => {
+    try {
+      // @ts-ignore
+      naiyo();
+    } catch (e) {
+      return e;
+    }
+  };
+
+  // ReferenceError
+  // 無効な参照を参照解除するときに発生するエラーを表すインスタンスを作成します。例えば
+  expect(yabai).toBeDefined();
+});
+
+it("例外処理4", () => {
+  const yabai = () => {
+    try {
+      // @ts-ignore
+      "1.2".toPrecision(1);
+    } catch (e) {
+      return e;
+    }
+  };
+
+  // TypeError
+  // 変数またはパラメータが有効な型でないときに発生するエラーを表すインスタンスを作成します。
+  expect(yabai).toBeDefined();
+});
+
+it("例外処理5", () => {
+  const yabai = () => {
+    try {
+      // @ts-ignore
+      decodeURI("%"); // URIError: URI malformed
+    } catch (e) {
+      return e;
+    }
+  };
+
+  // URIError
+  // encodeURI()または decodeURI()に無効なパラメータが渡されたときに発生するエラーを表すインスタンスを生成します。
+  expect(yabai).toBeDefined();
+});
+
+it("引数の型取得", () => {
+  const myFunc = (p1: { a: number; b: string }, p2 = (c: number) => c ) => {
+    p1
+    p2
+  }
+
+  // 1番目の引数 取得
+  type A1T<T> = T extends (...arg: [infer I]) => any ? I : never;
+  const myFuncP1: A1T<typeof myFunc> = { a: 1, b: "" };
+  expect(myFuncP1).toBeDefined();
+
+  // 2番目の引数取得
+  type A2T<T> = T extends (...arg: [any, infer I]) => any ? I : never;
+  const myFuncP2: A2T<typeof myFunc> = undefined
+  expect(myFuncP2).toBe(undefined);
+
+  // 2番目の引数取得
+  const myFuncP22: A2T<typeof myFunc> = (p: number) => p
+  expect(myFuncP22).toBeDefined();
 });
