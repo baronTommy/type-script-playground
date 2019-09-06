@@ -1,9 +1,8 @@
 it("FizzBuzz", () => {
   // 30分
 
-  // 特筆事項
-  // 型制限かけているので 入力値の精査無し
-  // join の箇所で as Maybe<FizzBuzz> を利用していますが 型は妥当です
+  // ブログでリファクタ
+  // https://dev.classmethod.jp/beginners/try-typescript-fizz-buzz/
 
   type Maybe<T> = T | "";
   type Fizz = "Fizz";
@@ -35,10 +34,7 @@ it("FizzBuzz", () => {
 it("文字列ハッシュ", () => {
   // 30分
 
-  // 特筆事項
-  // 型制限かけているので 入力値の精査無し
-  // reduce を初めて使いました acc の上書きは気持ち悪い感じがしました
-  // https://github.com/airbnb/javascript/issues/719#issuecomment-223033908
+  // reduce を初めて使いました acc の上書きは気持ち悪いです
 
   const delimiter = " ";
   type Result = { [i: string]: number };
@@ -59,8 +55,6 @@ it("じゃんけん", () => {
   // 30分
 
   // 特筆事項
-  // 型制限かけているので 入力値の精査無し
-  // 問題の意図を勘違いしてたらすみません
   // ジャンケンの概念は一般的なので Mapで定義 量を考えてもハードコーデョングで十分だと思います
   // もし 3すくみ以上であれば、 ロジック化したほうがいいと思います
 
@@ -106,9 +100,7 @@ it("再帰", () => {
   // 10分
 
   // 特筆事項
-  // 型制限かけているので 入力値の精査無し
   // sumの上書きは気持ち悪いです
-  // 再帰処理は苦手です 以前無限ループして しまったことがあるので....
 
   const main = (p: number, sum = 0): number => {
     if (p === 1) {
@@ -126,11 +118,10 @@ it("ソート", () => {
   // 300分
 
   // 特筆事項
-  // 型制限かけているので 入力値の精査無し  入力値に若干制限かけています
-  // main([])  // Input型で 1つの以上の制限付与
   // 可読性向上のための array propatyは 使ってもいいと思うので使っています
   // 1度のループですると可読性下がるので 個別にループしています
-  // swap や sort での引数汚染は許しがたい // no-param-reassign
+  // swap や sort での引数汚染は気持ち悪いです
+  
   // バブルソートを初めて書きました 苦手です
   // クイックソートを初めて書きました あまり理解できていません
   // ソートの降順は省略しています
@@ -149,7 +140,6 @@ it("ソート", () => {
     return base;
   };
 
-  // 名前がね...
   const minMax = (p: Input, condition = lt) => {
     let r = head(p);
     p.forEach(v => (condition(r, v) ? (r = v) : undefined));

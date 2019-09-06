@@ -1,9 +1,3 @@
-// Hi&Low
-
-// 60分
-
-// 文字列判断していますが まじめに... など 実践であれば 別途定義します & マジックナンバーは使いません
-
 import readline, { ReadLine } from "readline";
 
 type Input = any;

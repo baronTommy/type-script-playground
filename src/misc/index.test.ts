@@ -816,10 +816,10 @@ it("例外処理5", () => {
 });
 
 it("引数の型取得", () => {
-  const myFunc = (p1: { a: number; b: string }, p2 = (c: number) => c ) => {
-    p1
-    p2
-  }
+  const myFunc = (p1: { a: number; b: string }, p2 = (c: number) => c) => {
+    p1;
+    p2;
+  };
 
   // 1番目の引数 取得
   type A1T<T> = T extends (...arg: [infer I]) => any ? I : never;
@@ -828,10 +828,41 @@ it("引数の型取得", () => {
 
   // 2番目の引数取得
   type A2T<T> = T extends (...arg: [any, infer I]) => any ? I : never;
-  const myFuncP2: A2T<typeof myFunc> = undefined
+  const myFuncP2: A2T<typeof myFunc> = undefined;
   expect(myFuncP2).toBe(undefined);
 
   // 2番目の引数取得
-  const myFuncP22: A2T<typeof myFunc> = (p: number) => p
+  const myFuncP22: A2T<typeof myFunc> = (p: number) => p;
   expect(myFuncP22).toBeDefined();
+});
+
+it("Non null assertion", () => {
+  type P = {
+    foo: string | null | undefined;
+  };
+
+  const main = (p: P) => {
+    // ! をつけると null や undefined をつぶす
+    return p.foo!.length;
+  };
+
+  expect(main({ foo: "ok" })).toBeDefined();
+});
+
+it("脱 object -> Map使う", () => {
+  type Keys = {
+    [i: string]: Symbol;
+  };
+
+  const keys: Keys = {
+    foo: Symbol(),
+    bar: Symbol()
+  } as const;
+
+  const myMap = new Map<Symbol, any>();
+
+  myMap.set(keys.foo, "~foo~");
+  myMap.set(keys.bar, "~bar~");
+
+  expect(myMap.get(keys.foo)).toBe("~foo~")
 });
