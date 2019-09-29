@@ -1,3 +1,25 @@
+it("object key から Union Type 作成", () => {
+  // https://qiita.com/KuwabataK/items/587205867d333b705a41
+
+  interface User {
+    name: string,
+    id: string,
+    obj: {
+      obj2: {
+        aaa: string
+      },
+      bbb: string,
+    }
+  }
+  type ValueOf<T> = T[keyof T];
+  type Property<T> = keyof T | ValueOf<{[K in keyof T]: T[K] extends object ? Property<T[K]> : never}>
+  
+  type UserProperty = Property<User> //=> "name" | "id" | "obj" | "obj2" | "bbb" | "aaa"
+
+  const uK: UserProperty = 'bbb'
+  expect(uK).toBeDefined()
+});
+
 it("配列から要素の型を取得する", () => {
   // https://qiita.com/akameco/items/343ebca91a9c8506b897
 
