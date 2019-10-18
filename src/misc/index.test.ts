@@ -888,3 +888,54 @@ it("脱 object -> Map使う", () => {
 
   expect(myMap.get(keys.foo)).toBe("~foo~")
 });
+
+
+it("先頭に追加", () => {
+  // https://qiita.com/kazatsuyu/items/7b5e8366601c65a2212a
+  type Prepend<T extends unknown[], U = unknown> = ((u: U, ...t: T) => void) extends ((...v: infer V) => void) ? V : never;
+
+  type T1 = ['a', 'b', 'c']
+  type T2 = 'x'
+
+  const tuple2: Prepend<T1, T2> =  ['x', 'a', 'b', 'c']
+
+  expect(tuple2).toBeDefined()
+});
+
+
+it("末尾に追加", () => {
+  // https://qiita.com/kazatsuyu/items/7b5e8366601c65a2212a
+  type Prepend<T extends unknown[], U = unknown> = ((u: U, ...t: T) => void) extends ((...v: infer V) => void) ? V : never;
+
+  type AppendImpl<T extends unknown[], U, V extends unknown[]> = {
+    [K in keyof V]: K extends keyof T ? T[K] : U;
+  };
+  type Append<T extends unknown[], U = unknown> = AppendImpl<T, U, Prepend<T1>>;
+
+  type T1 = ['a', 'b', 'c']
+  type T2 = 'x'
+
+  const tuple2: Append<T1, T2> =  ['a', 'b', 'c', 'x']
+
+  expect(tuple2).toBeDefined()
+});
+
+it("TemplateStringsArray", () => {
+
+  function myTpl(literals: TemplateStringsArray, ...placeholders: string[]) {
+    let result = "";
+
+    for (let i = 0; i < placeholders.length; i++) {
+        result += literals[i];
+        result += placeholders[i]
+    }
+
+    result += literals[literals.length - 1];
+    return result;
+  }
+
+  const p = 'abc'
+  const p2 = 123
+  const r = myTpl`>-${p}~~${p2.toString()}-<`
+  expect(r).toBeDefined()
+})
